@@ -1,0 +1,136 @@
+String s1 = "ab";
+String s2 = s1 + "cd";
+String s3 = "ab" + "cd";
+System.out.println(s2 == "abcd"); // false
+System.out.println(s3 == "abcd"); // true
+
+---------------------------------------------------------------------------
+
+// Что выведется на консоль? Написать ответ.
+
+class Main {
+    private static void addToList(List<Integer> list) {
+        if (list.get(0) <= 0) {
+            list.add(456);
+        } else {
+            list = new ArrayList<>();
+        }
+    }
+
+    public static void main(String[] args) {
+        List<Integer> list = new ArrayList<>();
+        list.add(123);
+        addToList(list);
+        System.out.println(list);
+    }
+}
+
+output: [123]
+
+---------------------------------------------------------------------------
+
+Stream.of("d2", "a2", "b1", "b3", "c")
+       .map(s -> {
+            System.out.println("map: " + s);
+            return s.toUpperCase();
+       })
+       .anyMatch(s -> {
+            System.out.println("anyMatch: " + s);
+            return s.startsWith("A");
+       });
+
+output:
+anyMatch: d2
+map: A2
+anyMatch: a2
+anyMatch: b1
+anyMatch: b3
+anyMatch: c
+=====================
+map: d2
+anyMatch: D2
+map: a2
+anyMatch: A2
+
+---------------------------------------------------------------------------
+
+class Main {
+    public static void main(String[] args) {
+        Stream<Integer> mainStream = Stream.of(1,2,3,4,5,6,7,8,9,10);
+        List<Integer> listEven = mainStream.filter(item -> item % 2 == 0).collect(toList());
+        System.out.println(listEven);
+
+        List<Integer> listOdd = mainStream.filter(item -> item % 2 != 0).collect(toList());
+        System.out.println(listOdd);
+    }
+}
+
+
+---------------------------------------------------------------------------
+
+// Убрать дубликаты
+int[] array = new int[] {1, 2, 3, 2, 1, 1, 5}
+Arrays.asStream(array).collect(Collectors.toSet())
+
+---------------------------------------------------------------------------
+
+@Component
+public final class CachedPhotosService  {
+    private static final String RESIZED_PHOTO_CACHE_NAME = "RESIZED_PHOTO_CACHE_NAME";
+
+    @Autowired
+    private PhotoRepository photoRepository;
+    @Autowired
+    private PhotoValidationService photoValidationService;
+    @Autowired
+    private PhotoOperations photoOperations;
+
+    @Cacheable(cacheNames = RESIZED_PHOTO_CACHE_NAME)
+    public PhotoDTO resizedPhoto(String photoId, int width, int height) {
+        photoValidationService.validateSize(width, height);
+
+        Photo photo = photoRepository.findById(photoId);
+
+        PhotoDto photoDto = ConvertionUtils.convert(photo);
+        var resizedPhoto = photoOperations.resize(photoDto, width, height);
+
+        return resizedPhoto;
+    }
+
+}
+
+---------------------------------------------------------------------------
+
+// ковариантность контрвариантность
+
+Number[] numbers = new Integer[1];
+List<? extends Number> numbers = new ArrayList<Integer>();
+
+---------------------------------------------------------------------------
+
+private Account[] accounts;
+
+public void sendMoney1(BigDecimal money) {
+   synchronized(accounts[1]) {
+      ...
+	  accounts[1].minus(money);
+      synchronized(accounts[4]) {
+	      ...
+		  accounts[4].plus(money);
+	  }
+	  ...
+   }
+}
+
+public void sendMoney2(BigDecimal money) {
+   synchronized(accounts[1]) {
+      ...
+     accounts[1].plus(money);
+
+      synchronized(accounts[4]) {
+	      ...
+	    accounts[4].minus(money);
+	  }
+	  ...
+   }
+}
